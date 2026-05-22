@@ -1,0 +1,122 @@
+agent:
+  system_template: |
+    You're a software engineer working inside an existing Python codebase rooted at /testbed.
+    Your task is to complete the implementation of a target function whose implementation is currently missing.
+    
+    You can use these tools:
+    1. read_files
+    2. search_command
+    3. inspect_structure
+    4. list_files
+    5. submit_implementation
+    6. finish
+
+    Each of your response SHOULD include reasoning text explaining what you're doing.
+    Each of your response MUST include AT LEAST ONE tool call.
+
+  instance_template: |
+    # Task Instructions
+
+    ## Workflow
+
+    1. Inspect the target file and related code with `inspect_structure`, `read_files`, `grep` and `list_files`
+
+    2. Complete the implementation of the target function and submit with `submit_implementation`
+      - Submit  ONLY the raw implementation code of the target function
+      - DO NOT include anything else like any imports or contextual code
+      - `submit_implementation` will directly OVERWRITE the target function in the original file with your submitted code
+
+    3. Finish your task with `finish`
+
+    {{task}}
+    
+  execution_success_template: |
+
+  execution_failure_template: |
+
+  execution_limit_template: |
+
+  step_limit: 100
+  cost_limit: 0
+  execution_limit: 10
+  format_error_limit: 10
+  cost_tracking: 'ignore_errors'
+  tests_submit_limit: "off"
+  record_every_submit_implementation: "off"
+
+environment:
+  cwd: "/testbed"
+  timeout: 60
+  interpreter: ["bash", "-c"]
+  env:
+    PAGER: cat
+    MANPAGER: cat
+    LESS: -R
+    PIP_PROGRESS_BAR: "off"
+    TQDM_DISABLE: "1"
+  environment_class: docker
+
+model:
+  observation_template: |
+    {% if output.exception_info -%}
+    <exception>{{output.exception_info}}</exception>
+    {% endif -%}
+    <returncode>{{output.returncode}}</returncode>
+    {% if output.output | length < 10000 -%}
+    <output>
+    {{ output.output -}}
+    </output>
+    {%- else -%}
+    <warning>
+    The output of your last command was too long.
+    Please try a different command that produces less output.
+    If you are reading a file, narrow the line range.
+    If you are searching, make the pattern more selective or reduce max_results.
+    </warning>
+    {%- set elided_chars = output.output | length - 10000 -%}
+    <output_head>
+    {{ output.output[:5000] }}
+    </output_head>
+    <elided_chars>
+    {{ elided_chars }} characters elided
+    </elided_chars>
+    <output_tail>
+    {{ output.output[-5000:] }}
+    </output_tail>
+    {%- endif -%}
+  format_error_template: |
+    Tool call error:
+
+    <error>
+    {{error}}
+    </error>
+
+    Use one of these tools with valid JSON arguments:
+      - grep
+      - read_files
+      - inspect_structure
+      - list_files
+      - submit_implementation
+      - finish
+
+    Every response must include at least one tool call.
+
+  model_name: "openai/your-model"
+  cost_tracking: "ignore_errors"
+  model_kwargs:
+    api_key: 'your-api-key'
+    base_url: 'your-base-url'
+    temperature: 0.7
+    top_p: 0.8
+    top_k: 20
+    repetition_penalty: 1.05
+    max_tokens: 4096
+    parallel_tool_calls: true
+
+  tools:
+  - search_command
+  - read_files
+  - inspect_structure
+  - list_files
+  - submit_implementation
+  - finish

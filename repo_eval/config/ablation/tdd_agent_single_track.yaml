@@ -1,0 +1,142 @@
+agent:
+  system_template: |
+    You're a software engineer working inside an existing Python codebase rooted at /testbed.
+    Your task is to write test cases and complete the implementation of a target function whose implementation is currently missing.
+    
+    You can use these tools:
+    1. read_files
+    2. search_command
+    3. inspect_structure
+    4. list_files
+    5. submit_implementation
+    6. submit_tests
+    7. run_tests
+    8. finish
+
+    Each of your response SHOULD include reasoning text explaining what you're doing
+    Each of your response MUST include AT LEAST ONE tool call.
+
+  instance_template: |
+    # Task Instructions
+
+    ## Workflow
+
+    1. Inspect the target file and related code with `inspect_structure`, `read_files`, `search_command` and `list_files`
+
+    2. Create pytest test cases for the target function and submit with `submit_tests`
+      - Focus on the canonical usage rather than obscure edge cases or stress testing.
+      - Your submitted tests will be saved as `test_by_agent.py` in the same directory as the target function file path
+      - It will be laterly executed from the project root with `python -m pytest <path_to_target_dir>/test_by_agent.py`
+
+    3. Complete the implementation of the target function and submit with `submit_implementation`
+      - Submit ONLY the implementation of the target function including the function signature but WITHOUT any imports or code outside the target function definition
+      - DO NOT include anything else like any imports or contextual code
+      - `submit_implementation` will directly OVERWRITE the target function in the original file with your submitted code
+
+    4. After submitting both your implementation and tests, validate with `run_tests`
+      - Before you call `run_tests`, make sure both your implementation and tests are submitted
+      - Calling `run_tests` will execute your submitted tests and your latest submmitted implemenation by running `python -m pytest <path_to_target_dir>/test_by_agent.py` command from the project root
+
+    5. Iteratively analyze the execution results, refine your implementation, re-submit and re-run
+
+    6. Only when you are completely confident about your implementation should you finish your task with `finish`
+
+    {{task}}
+
+  execution_success_template: |
+    Your last execution was successful.
+    Now Reflect on whether your implementation has any remaining issues and whether it fully realizes the expected behavior of the target function.
+    Only when you are completely confident about your implementation, should you call `finish` to end your task.
+
+    Note:
+      1. `run_tests` ONLY executes your latest submitted implementation. 
+      2. Running the project's pre-existing test suite is not allowed. Do not attempt to use `run_tests` to execute the repository's native test suite.
+      3. Before you call `run_tests` again, please ensure that you have resubmitted your implementation.
+      4. Rerunning `run_tests` without any new submissions is meaningless and will only yield identical results.
+      5. Do not resubmit identical code before calling `finish`. The system will automatically save the exact version from your most recent `run_tests` execution.
+
+  execution_failure_template: |
+    Your last execution failed.
+    Carefully analyze the reasons for failure:
+      -Is the implementation incorrect or incomplete?
+    Continue calling tools to refine your implementation, submit and validate with `run_tests`.
+
+  execution_limit_template: |
+    You have exceeded the execution limit.
+
+  step_limit: 100
+  cost_limit: 0
+  execution_limit: 10
+  tests_submit_limit: "on"
+  format_error_limit: 10
+  cost_tracking: 'ignore_errors'
+
+environment:
+  cwd: "/testbed"
+  timeout: 300
+  interpreter: ["bash", "-c"]
+  env:
+    PAGER: cat
+    MANPAGER: cat
+    LESS: -R
+    PIP_PROGRESS_BAR: "off"
+    TQDM_DISABLE: "1"
+  environment_class: docker
+
+model:
+  observation_template: |
+    {% if output.exception_info -%}
+    <exception>{{output.exception_info}}</exception>
+    {% endif -%}
+    <returncode>{{output.returncode}}</returncode>
+    {% if output.output | length < 10000 -%}
+    <output>
+    {{ output.output -}}
+    </output>
+    {%- else -%}
+    <warning>
+    The output of your last command was too long.
+    Please try a different command that produces less output.
+    If you are reading a file, narrow the line range.
+    If you are searching, make the pattern more selective or reduce max_results.
+    </warning>
+    {%- set elided_chars = output.output | length - 10000 -%}
+    <output_head>
+    {{ output.output[:5000] }}
+    </output_head>
+    <elided_chars>
+    {{ elided_chars }} characters elided
+    </elided_chars>
+    <output_tail>
+    {{ output.output[-5000:] }}
+    </output_tail>
+    {%- endif -%}
+  format_error_template: |
+    {{error}}
+
+    Each response must include:
+
+    1. **Reasoning text** where you explain your analysis and plan
+    2. **At least one tool call**
+
+  model_name: "openai/your-model"
+  cost_tracking: "ignore_errors"
+  model_kwargs:
+    api_key: 'your-api-key'
+    base_url: 'your-base-url'
+    temperature: 0.7
+    top_p: 0.8
+    top_k: 20
+    repetition_penalty: 1.05
+    max_tokens: 4096
+    parallel_tool_calls: true
+
+  tools:
+    - read_files
+    - search_command
+    - inspect_structure
+    - list_files
+    - submit_implementation
+    - submit_tests
+    - run_tests
+    - finish

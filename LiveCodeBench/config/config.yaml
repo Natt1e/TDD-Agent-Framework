@@ -1,0 +1,285 @@
+data:
+  dataset: "livecodebench/code_generation_lite"
+  release: "release_v6"
+  platform: "leetcode"
+  start_date: "2024-05-01"
+  end_date: "2025-05-01"
+  output_path: "./predictions.jsonl"
+
+run:
+  mode: "one_shot"
+  num_samples: 1
+
+prompt:
+  one_shot_system_prompt: |
+    You are an expert Python programmer. Given a problem, provide the correct and complete python code.
+    Just output the code inside a ```python ``` block.
+    There must be NO text, NO explanations, NO thought processes, and NO greetings before or after the code block. 
+    
+  one_shot_examples:
+    - user: |
+          You are given an integer array coins representing coins of different denominations and an integer amount representing a total amount of money.
+
+          Return the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return -1.
+
+          You may assume that you have an infinite number of each kind of coin.
+
+          Constraints:
+
+          1 <= coins.length <= 12
+          1 <= coins[i] <= 231 - 1
+          0 <= amount <= 104
+
+          ```python
+          class Solution:
+              def coinChange(self, coins: List[int], amount: int) -> int:
+          ```
+
+      assistant: |
+          ```python
+          class Solution:
+              def coinChange(self, coins: List[int], amount: int) -> int:
+                  dp = [float('inf')] * (amount + 1)
+                  dp[0] = 0
+                  
+                  for coin in coins:
+                      for x in range(coin, amount + 1):
+                          dp[x] = min(dp[x], dp[x - coin] + 1)
+                  
+                  return dp[amount] if dp[amount] != float('inf') else -1
+          ```
+
+  scot_system_prompt: "You are an expert Python programmer who provides structured problem-solving processes for Python functions. Your task is to analyze a given programming problem and generate a structured solution breakdown."
+
+  scot_user: |
+          {prompt}
+          Please understand the requirement and write a rough solving process. It starts with a input-output structure. You should use three basic structures to build the solving process, including sequences, branches, and loops. The necessary details should be written in natural languages.
+
+  scot_examples:
+    - user: |
+          You are given an integer array coins representing coins of different denominations and an integer amount representing a total amount of money.
+          Return the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return -1.
+          You may assume that you have an infinite number of each kind of coin.
+
+          Constraints:
+          1 <= coins.length <= 12
+          1 <= coins[i] <= 2^31 - 1
+          0 <= amount <= 10^4
+
+          ```python
+          class Solution:
+            def coinChange(self, coins: List[int], amount: int) -> int:
+          ```
+
+          Please understand the requirement and write a rough solving process. It starts with a input-output structure. You should use three basic structures to build the solving process, including sequences, branches, and loops. The necessary details should be written in natural languages.
+
+      assistant: |
+          Input: coins: a list of integers, amount: an integer
+          Output: min_coins: the fewest number of coins to make up the amount, or -1
+          1: Initialize an array dp of size amount + 1 with infinity, and set dp[0] to 0.
+          2: for each i from 1 to amount:
+          3:     for each coin in coins:
+          4:         if i >= coin:
+          5:             Update dp[i] to the minimum of dp[i] and dp[i - coin] + 1.
+          6: if dp[amount] is infinity:
+          7:     return -1
+          8: return dp[amount]
+
+  scot_code_system: "You are an expert Python programmer. Given a problem, complete the missing implementation by analyzing the problem and structured problem-solving steps. Ensure that your implementation aligns with the intended functionality."
+
+  scot_code_user: |
+          {combined_prompt}
+
+          # Please check the above solving process and write a code based on it. Note that the solving process may contain errors.
+
+  cot_system_prompt: "You are an expert Python programmer. Given a problem, provide the correct and complete python code. Start your response with 'Let's think step by step.' Put your final code inside a ```python ``` block."
+
+  icot_system_prompt: "You are an expert Python programmer who provides structured problem-solving processes for Python functions. Your task is to analyze a given programming problem and generate a structured solution breakdown."
+
+  icot_user: |
+          {prompt}
+
+          Please analyze the requirement and provide a structured solving process with the following format:  
+              1: Specification  
+                - Define the input and output format concisely.  
+              2: Idea: Summarize the core logic and optimal algorithm with time complexity.  
+
+  icot_examples:
+    - user: |
+          You are given an integer array coins representing coins of different denominations and an integer amount representing a total amount of money.
+          Return the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return -1.
+          You may assume that you have an infinite number of each kind of coin.
+
+          Constraints:
+          1 <= coins.length <= 12
+          1 <= coins[i] <= 2^31 - 1
+          0 <= amount <= 10^4
+
+          ```python
+          class Solution:
+            def coinChange(self, coins: List[int], amount: int) -> int:
+          ```
+
+          Please analyze the requirement and provide a structured solving process with the following format:  
+              1: Specification  
+                - Define the input and output format concisely.  
+              2: Idea: Summarize the core logic and optimal algorithm with time complexity.  
+      
+      assistant: |
+          1: Specification:
+            - Input: A list of integer coin denominations and a target integer amount.
+            - Output: The minimum number of coins required to reach the amount, or -1 if it's not possible.
+          2: Idea:
+            - Use Bottom-up DP with transition `dp[x] = min(dp[x], dp[x - coin] + 1)`. Time: O(amount * len(coins)).
+
+  icot_code_system_prompt: "You are an expert Python programmer. Given a programming problem, write the complete Python function by analyzing the provided problem description and structured problem-solving steps. Ensure that your implementation aligns with the intended functionality."
+
+  icot_code_user: |
+          {combined_icot_prompt}
+
+          # Please check the above solving process and write a code based on it. Note that the solving process may contain errors.
+          # You must provide the complete code including the function signature and imports if necessary.
+          # Put your final code inside a ```python ``` block.
+
+  icot_code_examples:
+    - user: |
+          You are given an integer array coins representing coins of different denominations and an integer amount representing a total amount of money.
+          Return the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return -1.
+          You may assume that you have an infinite number of each kind of coin.
+
+          Constraints:
+          1 <= coins.length <= 12
+          1 <= coins[i] <= 2^31 - 1
+          0 <= amount <= 10^4
+
+          ```python
+          class Solution:
+            def coinChange(self, coins: List[int], amount: int) -> int:
+          ```
+
+          1: Specification:
+            - Input: A list of integer coin denominations and a target integer amount.
+            - Output: The minimum number of coins required to reach the amount, or -1 if it's not possible.
+          2: Idea:
+            - Use Bottom-up DP with transition `dp[x] = min(dp[x], dp[x - coin] + 1)`. Time: O(amount * len(coins)).
+
+          # Please check the above solving process and write a code based on it. Note that the solving process may contain errors.
+          # You must provide the complete code including the function signature and imports if necessary.
+          # Put your final code inside a ```python ``` block.
+      
+      assistant: |
+          ```python
+          class Solution:
+              def coinChange(self, coins: List[int], amount: int) -> int:
+                  dp = [float('inf')] * (amount + 1)
+                  dp[0] = 0
+                  
+                  for coin in coins:
+                      for x in range(coin, amount + 1):
+                          dp[x] = min(dp[x], dp[x - coin] + 1)
+                  
+                  return dp[amount] if dp[amount] != float('inf') else -1
+          ```
+
+  plan_system_prompt: "You are an expert Python programmer who provides a problem-solving plan for Python programming problems. Your task is to analyze a given problem and generate a . DO NOT write any code."
+
+  plan_examples:
+    - user: |
+          You are given an integer array coins representing coins of different denominations and an integer amount representing a total amount of money.
+          Return the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return -1.
+          You may assume that you have an infinite number of each kind of coin.
+
+          Constraints:
+          1 <= coins.length <= 12
+          1 <= coins[i] <= 2^31 - 1
+          0 <= amount <= 10^4
+
+          ```python
+          class Solution:
+            def coinChange(self, coins: List[int], amount: int) -> int:
+          ``` 
+      
+      assistant: |
+          1. Initialize a dynamic programming array.
+          2. Loop through each coin, updating the minimum coins needed for every amount up to the target.
+          3. Return the target amount's value.
+
+
+
+  plan_code_system: "You are an expert Python programmer. Given a problem, complete the missing implementation by analyzing the provided problem description and structured problem-solving steps. Ensure that your implementation aligns with the intended functionality. Put your code inside a ```python ``` block."
+
+
+  plan_code_examples:
+    - user: |
+          You are given an integer array coins representing coins of different denominations and an integer amount representing a total amount of money.
+          Return the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return -1.
+          You may assume that you have an infinite number of each kind of coin.
+
+          Constraints:
+          1 <= coins.length <= 12
+          1 <= coins[i] <= 2^31 - 1
+          0 <= amount <= 10^4
+
+          ```python
+          class Solution:
+            def coinChange(self, coins: List[int], amount: int) -> int:
+          ```
+
+          1. Initialize a dynamic programming array with infinity, setting index 0 to 0.
+          2. Loop through each coin, updating the minimum coins needed for every amount up to the target.
+          3. Return the target amount's value, or -1 if it is still infinity.
+
+      
+      assistant: |
+          ```python
+          class Solution:
+              def coinChange(self, coins: List[int], amount: int) -> int:
+                  dp = [float('inf')] * (amount + 1)
+                  dp[0] = 0
+                  
+                  for coin in coins:
+                      for x in range(coin, amount + 1):
+                          dp[x] = min(dp[x], dp[x - coin] + 1)
+                  
+                  return dp[amount] if dp[amount] != float('inf') else -1
+          ```
+
+ 
+
+  tdd_system: |
+    You are an expert Python programmer. Given a programming problem, you must follow a strict thinking process before writing the final implementation.
+  tdd_user: |
+    # Problem Description:
+
+    {prompt}
+
+    ```python
+    {starter_code}
+    ```
+
+    Please solve the problem by strictly following this process:
+
+    1. Overview: Identify the core logic, I/O format, constraints and edge cases.
+    2. Tests: Design 3-5 concrete test cases covering basic and edge scenarios. 
+      - Use small-scale inputs to avoid miscalculation.
+      - You MUST briefly derive the correct expected output step-by-step.
+    3. Algorithmic Strategy: Briefly outline the optimal approach and its time/space complexity.
+    4. Implementation: Write the final Python code inside a ```python ``` block.
+
+  tdd_ablation_system: |
+    You are an expert Python programmer. Given a programming problem, you must follow a strict thinking process before writing the final implementation.
+  tdd_ablation_user: |
+    # Problem Description:
+
+    {prompt}
+
+    ```python
+    {starter_code}
+    ```
+
+    Please solve the problem by strictly following this process:
+
+    1. Overview: Identify the core logic, I/O format, constraints and edge cases.
+    2. Algorithmic Strategy: Briefly outline the optimal approach and its time/space complexity.
+    3. Implementation: Write the final Python code inside a ```python ``` block.
+
