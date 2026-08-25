@@ -64,19 +64,13 @@ cd repo_eval && bash sh/run_evaluation.sh
 ```
 
 
-## TDD-prompt
+## 📊 TDD-prompt
 
 We design a prompting variant **TDD-prompt**, which asks the LLM to formulate tests before producing the final implementation.
 
-All prompts used are in `LiveCodeBench/config/model.yaml`
+All prompts used in our experiments are in `LiveCodeBench/config/config.yaml`.
 
-mode can be selected from :
-
-```
-['one_shot', 'cot', 'icot', 'self_plan', 'scot', 'tdd', 'tdd_ablation']
-```
-
-Run predict using:
+Config your **api_key** and **base_url** in `LiveCodeBench/config/model.yaml` and run predict:
 
 ```bash
 python "LiveCodeBench/predict.py" \
@@ -91,6 +85,19 @@ python "LiveCodeBench/predict.py" \
     --output_path your-predict-path 
 ```
 
-## Acknowledgements
+mode can be selected from :
+
+| mode | description |
+|:-----|:-------|
+| one_shot | One-Shot |
+| cot | Chain-of-Thought |
+| icot | Intention Chain-of-Thought |
+| self_plan | Self-Planning |
+| scot | Structured Chain-of-Thought |
+| tdd  | our TDD-prompt |
+| tdd_ablation | our ablation study |  
+
+
+## 🙌 Acknowledgements
 
 Our implementation adapts code from [SWE-agent/mini-swe-agent](https://github.com/SWE-agent/mini-swe-agent). We thank the [OpenHands/OpenHands](https://github.com/OpenHands/OpenHands) and [SWE-agent/mini-swe-agent](https://github.com/SWE-agent/mini-swe-agent) projects for their open-source contributions.
