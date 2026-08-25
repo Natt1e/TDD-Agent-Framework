@@ -5,7 +5,7 @@ python run_repoeval_tdd.py \
 --predict-output your_predict.jsonl \
 --docker-cpus 2.0 \
 --docker-memory 4g \
---dataset_path function_2k_washed.jsonl
+--dataset function_2k_washed.jsonl
 
 
 

@@ -30,6 +30,18 @@ DEFAULT_CONFIG_FILE = "config/repoeval_tdd_multitool.yaml"
 app = typer.Typer(rich_markup_mode="rich", add_completion=False)
 
 
+def _parse_instance_ids(id_specs: list[str]) -> list[str]:
+    ids: list[str] = []
+    seen: set[str] = set()
+    for spec in id_specs:
+        for instance_id in spec.split(","):
+            instance_id = instance_id.strip()
+            if instance_id and instance_id not in seen:
+                ids.append(instance_id)
+                seen.add(instance_id)
+    return ids
+
+
 def _run_single_instance(
     instance: dict[str, Any],
     model_cfg: dict[str, Any],
@@ -111,7 +123,17 @@ def main(
     docker_cpus: float = typer.Option(1.0, "--docker-cpus", min=0.1, help="Docker CPU cores passed to run args", rich_help_panel="Basic"),
     debug: int = typer.Option(-1, "--debug", help="debug mode", rich_help_panel="Basic"),
     resume: bool = typer.Option(False, "--resume", help="Whether to resume from existing predict output file", rich_help_panel="Basic"),
-    
+    ids: list[str] = typer.Option(
+        [],
+        "-i",
+        "--id",
+        "--ids",
+        help=(
+            "Run only the specified RepoEval ids. Can be repeated or comma-separated, "
+            "e.g. -i 1 -i 2 or --ids 1,2."
+        ),
+        rich_help_panel="Data selection",
+    ),
 ) -> None:
     logger.info(f"Building agent config from specs: {config_spec}")
     config_file = Path(config_spec[0])
@@ -123,16 +145,25 @@ def main(
     traj_output_dir.mkdir(parents=True, exist_ok=True)
 
     dataset = load_repoeval_dataset(dataset_path)
-    
+
+    requested_ids = _parse_instance_ids(ids)
+    if requested_ids:
+        requested_id_set = set(requested_ids)
+        dataset = [instance for instance in dataset if str(instance["id"]) in requested_id_set]
+        matched_ids = {str(instance["id"]) for instance in dataset}
+        missing_ids = [instance_id for instance_id in requested_ids if instance_id not in matched_ids]
+        if missing_ids:
+            raise typer.BadParameter(f"Requested ids not found in dataset: {', '.join(missing_ids)}")
+        logger.info(f"Filtered dataset to {len(dataset)} requested ids")
 
     if resume:
         existing_ids = []
         if Path(predict_output).is_file():
             with open(predict_output, "r", encoding="utf-8") as file:
                 for line in file:
-                    existing_ids.append(json.loads(line)["id"])
-            dataset = [instance for instance in dataset if instance["id"] not in existing_ids]
-    if debug > 0 :
+                    existing_ids.append(str(json.loads(line)["id"]))
+            dataset = [instance for instance in dataset if str(instance["id"]) not in existing_ids]
+    if debug > 0:
         dataset = dataset[:debug]
 
     worker = partial(

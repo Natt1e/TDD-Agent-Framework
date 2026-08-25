@@ -1,26 +1,37 @@
-## TDD-Agent Setup
+<h1 align="center">
+  <img src="assets/tdd-logo.png" alt="TDD-Agent Logo" width="64" align="absmiddle">
+  TDD-Agent
+</h1>
 
-This project is build on [mini-swe-agent](https://github.com/SWE-agent/mini-swe-agent)
+This repository contains the code and dataset for our paper [TDD-Agent: Test-Driven Reasoning for Code Generation](https://arxiv.org/abs/2608.16742)(EMNLP 2026)
+
+![OVERVIEW](assets/tddagent-overview.png)
+
+we introduced **TDD-Agent**, which operationalizes the Test-Driven Development paradigm. TDD-Agent treats test generation as a process of reasoning, compelling the model to clarify requirements and define executable boundaries prior to implementation. Through iterative refinement, our framework enables the dual refinement of both code and tests.
+
+## 📦 Installation
 
 ```bash
+conda create -n tdd python=3.12
+conda activate tdd
 pip install -e .
 ```
 
-## How to run
+## 🚀 Quick Start
 
-### Prepare docker environments
+### 🎁 Download docker images
 
 `RepoEval` contains 8 code repositories, we have prepared the docker images for every repository.
 
 This script will autonomously pull all 8 images and run `pytest` in each container to check the environment.
 
 ```bash
-python pull_and_check_docker.py
+python repo_eval/pull_and_check_docker.py
 ```
 
-### Config your own configuration
+### ⚙️ Config your own configuration
 
-Config your api_key in config/*.yaml
+Config your **api_key** and **base_url** in repo_eval/config/*.yaml
 
 These yaml files contains the prompt for each methods:
 
@@ -35,49 +46,38 @@ repo_eval/
         ├── tdd_agent_vanilla.yaml: the config for Vanilla-Variant
 ```
 
-### Run predict, baseline, ablation and evalutaion
-
-#### Run TDD-Agent:
-
-After add your output_path to `sh/run_tdd_agent.sh`, run:
+### 📈 Usage
 
 ```bash
-bash sh/run_tdd_agent.sh
+
+# To run TDD-Agent, add your output_path to `sh/run_tdd_agent.sh`: 
+cd repo_eval && bash sh/run_tdd_agent.sh
+
+# To run mini-swe-agent, add your output_path to `sh/run_mini_swe_agent.sh`: 
+cd repo_eval && bash sh/run_mini_swe_agent.sh
+
+# To run ablation variants, add your output_path to `sh/run_ablation.sh`:
+cd repo_eval && bash sh/run_ablation.sh
+
+# To run evaluation,  add your output_path to `sh/run_tdd_agent.sh`:
+cd repo_eval && bash sh/run_evaluation.sh
 ```
 
-#### Run mini-swe-agent:
-
-After add your output_path to `sh/run_mini_swe_agent.sh`, run:
-
-```bash
-bash sh/run_mini_swe_agent.sh
-```
-
-#### Run ablation variants:
-
-After add your output_path to `sh/run_ablation.sh`, run
-
-```bash
-bash sh/run_ablation.sh
-```
-
-#### Run evalution:
-
-After add your output_path to `sh/run_tdd_agent.sh`, run:
-
-```bash
-bash sh/run_evaluation.sh
-```
 
 ## TDD-prompt
 
-All prompts used are in LiveCodeBench/config/model.yaml
+We design a prompting variant **TDD-prompt**, which asks the LLM to formulate tests before producing the final implementation.
+
+All prompts used are in `LiveCodeBench/config/model.yaml`
 
 mode can be selected from :
 
+```
 ['one_shot', 'cot', 'icot', 'self_plan', 'scot', 'tdd', 'tdd_ablation']
+```
 
 Run predict using:
+
 ```bash
 python "LiveCodeBench/predict.py" \
     --config_path LiveCodeBench/config/config.yaml \
@@ -90,3 +90,7 @@ python "LiveCodeBench/predict.py" \
     --num_samples 10 \
     --output_path your-predict-path 
 ```
+
+## Acknowledgements
+
+Our implementation adapts code from [SWE-agent/mini-swe-agent](https://github.com/SWE-agent/mini-swe-agent). We thank the [OpenHands/OpenHands](https://github.com/OpenHands/OpenHands) and [SWE-agent/mini-swe-agent](https://github.com/SWE-agent/mini-swe-agent) projects for their open-source contributions.
