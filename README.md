@@ -7,7 +7,7 @@ This repository contains the code and dataset for our paper [TDD-Agent: Test-Dri
 
 ![OVERVIEW](assets/tddagent-overview.png)
 
-we introduced **TDD-Agent**, which operationalizes the Test-Driven Development paradigm. TDD-Agent treats test generation as a process of reasoning, compelling the model to clarify requirements and define executable boundaries prior to implementation. Through iterative refinement, our framework enables the dual refinement of both code and tests.
+We introduced **TDD-Agent**, which operationalizes the Test-Driven Development paradigm. TDD-Agent treats test generation as a process of reasoning, compelling the model to clarify requirements and define executable boundaries prior to implementation. Through iterative refinement, our framework enables the dual refinement of both code and tests.
 
 ## 📦 Installation
 
